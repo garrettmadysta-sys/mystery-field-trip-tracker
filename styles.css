@@ -99,7 +99,7 @@ h3{font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:
 
 /* SUMMER CARD */
 .summer-card{overflow:hidden;padding:0}
-.summer-photo{width:100%;height:200px;object-fit:cover;object-position:center top}
+.summer-photo{width:100%;height:auto;max-height:400px;object-fit:contain;background:#0a0f1a;border-radius:var(--radius) var(--radius) 0 0}
 .summer-text{padding:16px}
 .summer-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);margin-bottom:6px}
 .summer-sub{font-size:14px;color:var(--text2);line-height:1.6}
@@ -230,5 +230,5 @@ textarea{resize:vertical;min-height:80px}
   .inline-form .btn{width:100%}
   .hero-photo{width:64px;height:64px}
   .hero-name{font-size:18px}
-  .summer-photo{height:160px}
+  .summer-photo{max-height:350px}
 }
