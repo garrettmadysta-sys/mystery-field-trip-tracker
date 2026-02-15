@@ -2,256 +2,235 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#1f2937" />
-  <title>Mystery Field Trip Tracker</title>
-
-  <!-- iOS PWA-ish -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Eli's Mystery Field Trip Tracker</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+  <meta name="apple-mobile-web-app-title" content="Eli's Tracker">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <header class="header">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">🕵️‍♂️</div>
-      <div>
-        <h1>Mystery Field Trip Tracker</h1>
-        <p class="sub">Read • Log AR tests • Earn rewards</p>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <span class="logo-icon">🕵️‍♂️</span>
+        <div>
+          <h1 class="app-title">Eli's Mystery Field Trip</h1>
+          <p class="app-sub">Read · Pass AR Tests · Go on the Trip!</p>
+        </div>
+      </div>
+      <button id="parentBtn" class="btn btn-icon" type="button" title="Parent Mode">⚙️</button>
+    </header>
+
+    <div class="mission-banner" id="missionBanner">
+      <div class="mission-left">
+        <div class="mission-label">ELI'S MISSION TODAY</div>
+        <div class="mission-target" id="missionTarget">Read <strong>36 pages</strong> today</div>
+      </div>
+      <div class="mission-right">
+        <div class="mission-done" id="missionDone">0 done</div>
+        <div class="mission-remaining" id="missionRemaining">36 to go</div>
       </div>
     </div>
-    <button id="parentBtn" class="btn btn-ghost" type="button">Parent Mode</button>
-  </header>
 
-  <main class="container">
-    <nav class="tabs" aria-label="Tabs">
-      <button class="tab is-active" data-tab="progress">Progress</button>
-      <button class="tab" data-tab="artests">AR Tests</button>
-      <button class="tab" data-tab="rewards">Rewards</button>
-      <button class="tab" data-tab="backup">Backup</button>
+    <nav class="tabs">
+      <button class="tab is-active" data-tab="progress">📖 Read</button>
+      <button class="tab" data-tab="timer">⏱️ Timer</button>
+      <button class="tab" data-tab="artests">🧠 AR</button>
+      <button class="tab" data-tab="rewards">🎁 Rewards</button>
     </nav>
 
-    <!-- PROGRESS -->
-    <section id="tab-progress" class="panel is-active">
-      <div class="card">
-        <div class="card-title">
-          <h2>Today’s Mission</h2>
-          <span class="pill" id="deadlinePill">Deadline: —</span>
-        </div>
+    <main class="main">
 
-        <div class="progress-wrap">
-          <div class="progress-meta">
-            <div><strong id="pagesRead">0</strong> / <span id="pagesGoal">36</span> pages</div>
-            <div class="muted">Remaining: <strong id="pagesRemaining">36</strong></div>
+      <!-- PROGRESS -->
+      <section id="tab-progress" class="panel is-active">
+        <div class="card">
+          <div class="card-head">
+            <h2>📊 Eli's Progress</h2>
+            <span class="pill" id="deadlinePill">No deadline set</span>
           </div>
-          <div class="progressbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="progressbar-fill" id="progressFill"></div>
-          </div>
-          <div class="mini-grid">
-            <div class="mini">
-              <div class="mini-k">Pages/day needed</div>
-              <div class="mini-v" id="perDay">—</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-labels">
+              <span><strong id="totalPagesRead">0</strong> pages read</span>
+              <span class="muted" id="totalPagesGoalLabel">Goal: —</span>
             </div>
-            <div class="mini">
-              <div class="mini-k">Streak</div>
-              <div class="mini-v" id="streak">0 🔥</div>
+            <div class="progress-track"><div class="progress-fill" id="totalProgressFill"></div></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-card"><div class="stat-val" id="pagesPerDay">36</div><div class="stat-label">pages/day</div></div>
+            <div class="stat-card accent"><div class="stat-val" id="streakVal">0 🔥</div><div class="stat-label">streak</div></div>
+            <div class="stat-card gold"><div class="stat-val" id="pointsVal">0 ⭐</div><div class="stat-label">points</div></div>
+          </div>
+          <div class="badges-row" id="badgesRow"></div>
+        </div>
+        <div class="card">
+          <h2>✏️ Log Pages</h2>
+          <form id="sprintForm" class="inline-form">
+            <label class="field"><span class="field-label">Date</span><input type="date" id="sprintDate" required /></label>
+            <label class="field"><span class="field-label">Pages</span><input type="number" id="sprintPages" min="1" max="999" inputmode="numeric" placeholder="6" required /></label>
+            <button class="btn btn-primary" type="submit">Log It ✅</button>
+          </form>
+          <p class="hint">Eli reads ~6 pages in 10 min. Log after each sprint!</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>📋 Log</h2><button id="clearSprints" class="btn btn-small btn-ghost" type="button">Clear</button></div>
+          <div id="sprintList" class="list-container"></div>
+        </div>
+      </section>
+
+      <!-- TIMER -->
+      <section id="tab-timer" class="panel">
+        <div class="card timer-card">
+          <h2>⏱️ Eli's Sprint Timer</h2>
+          <p class="hint">Pick a time, read, log pages when the bell rings!</p>
+          <div class="timer-display">
+            <div class="timer-circle">
+              <svg class="timer-svg" viewBox="0 0 200 200">
+                <circle class="timer-bg-ring" cx="100" cy="100" r="90" />
+                <circle class="timer-ring" id="timerRing" cx="100" cy="100" r="90" />
+              </svg>
+              <div class="timer-text" id="timerText">10:00</div>
             </div>
-            <div class="mini">
-              <div class="mini-k">Points</div>
-              <div class="mini-v" id="points">0 ⭐</div>
-            </div>
+          </div>
+          <div class="timer-message" id="timerMessage">Ready when you are, Eli! 📚</div>
+          <div class="timer-btns">
+            <button class="btn btn-timer active" data-minutes="10" id="btn10">10 min</button>
+            <button class="btn btn-timer" data-minutes="15" id="btn15">15 min</button>
+            <button class="btn btn-timer" data-minutes="20" id="btn20">20 min</button>
+          </div>
+          <div class="timer-controls">
+            <button class="btn btn-primary btn-big" id="timerStartBtn">▶️ Start Reading!</button>
+            <button class="btn btn-ghost btn-big hidden" id="timerStopBtn">⏹️ Stop</button>
+          </div>
+          <div class="timer-done-section hidden" id="timerDoneSection">
+            <div class="timer-done-msg">🎉 Awesome job Eli! How many pages?</div>
+            <form id="timerLogForm" class="inline-form">
+              <label class="field"><span class="field-label">Pages</span><input type="number" id="timerLogPages" min="1" max="999" inputmode="numeric" placeholder="6" required /></label>
+              <button class="btn btn-primary" type="submit">Log Pages ✅</button>
+            </form>
           </div>
         </div>
+      </section>
 
-        <div class="milestones">
-          <div class="badge" id="badge12">12 pages</div>
-          <div class="badge" id="badge24">24 pages</div>
-          <div class="badge" id="badge36">36 pages</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Log a Reading Sprint</h2>
-        <form id="sprintForm" class="form">
-          <label>
-            Date
-            <input type="date" id="sprintDate" required />
-          </label>
-          <label>
-            Pages read
-            <input type="number" id="sprintPages" min="1" max="200" inputmode="numeric" required />
-          </label>
-          <button class="btn btn-primary" type="submit">Add Sprint ✅</button>
-        </form>
-        <div class="hint">Tip: do 10–15 minute sprints. Small wins = big progress.</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <h2>Reading Log</h2>
-          <button id="clearSprints" class="btn btn-ghost" type="button">Clear</button>
-        </div>
-        <div id="sprintList" class="list"></div>
-      </div>
-    </section>
-
-    <!-- AR TESTS -->
-    <section id="tab-artests" class="panel">
-      <div class="card">
-        <div class="card-title">
-          <h2>AR Test Log</h2>
-          <span class="pill">Pass = <span id="passThresholdText">80%</span>+</span>
-        </div>
-
-        <form id="arForm" class="form">
-          <label>
-            Date
-            <input type="date" id="arDate" required />
-          </label>
-          <label>
-            Book title
-            <input type="text" id="arBook" maxlength="80" placeholder="e.g., The Boxcar Children" required />
-          </label>
-          <label>
-            Score (%)
-            <input type="number" id="arScore" min="0" max="100" inputmode="numeric" required />
-          </label>
-          <button class="btn btn-primary" type="submit">Log Test 🧠</button>
-        </form>
-
-        <div class="mini-grid">
-          <div class="mini">
-            <div class="mini-k">Passed</div>
-            <div class="mini-v" id="passedCount">0 ✅</div>
+      <!-- AR TESTS -->
+      <section id="tab-artests" class="panel">
+        <div class="card">
+          <div class="card-head"><h2>🧠 AR Tests</h2><span class="pill">Pass = <span id="passThresholdText">80</span>%+</span></div>
+          <div class="ar-goal-bar hidden" id="arGoalBar">
+            <div class="ar-goal-text">Passed: <strong id="arPassedCount">0</strong> / <strong id="arRequiredCount">—</strong> needed</div>
+            <div class="progress-track small"><div class="progress-fill green" id="arProgressFill"></div></div>
           </div>
-          <div class="mini">
-            <div class="mini-k">Attempts</div>
-            <div class="mini-v" id="attemptCount">0 📚</div>
+          <form id="arForm" class="inline-form">
+            <label class="field"><span class="field-label">Date</span><input type="date" id="arDate" required /></label>
+            <label class="field"><span class="field-label">Book</span><input type="text" id="arBook" maxlength="80" placeholder="Book title" required /></label>
+            <label class="field"><span class="field-label">Score %</span><input type="number" id="arScore" min="0" max="100" inputmode="numeric" placeholder="85" required /></label>
+            <button class="btn btn-primary" type="submit">Log Test 📝</button>
+          </form>
+          <p class="hint">No AR questions here — just log results after school.</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>📚 History</h2><button id="clearAR" class="btn btn-small btn-ghost" type="button">Clear</button></div>
+          <div class="stat-row two">
+            <div class="stat-card green"><div class="stat-val" id="arPassedStat">0 ✅</div><div class="stat-label">Passed</div></div>
+            <div class="stat-card"><div class="stat-val" id="arAttemptStat">0 📚</div><div class="stat-label">Attempts</div></div>
+          </div>
+          <div id="arList" class="list-container"></div>
+        </div>
+      </section>
+
+      <!-- REWARDS -->
+      <section id="tab-rewards" class="panel">
+        <div class="card">
+          <div class="card-head"><h2>🎁 Eli's Mystery Boxes</h2><div class="points-badge" id="rewardPointsBadge">0 ⭐</div></div>
+          <p class="hint">Spend points to open a box and win a reward!</p>
+          <div class="box-tiers">
+            <button class="mystery-box treats-box" id="boxTreats" type="button">
+              <div class="box-emoji">🍬</div><div class="box-tier-name">Treat Box</div><div class="box-cost"><span id="treatsCostText">12</span> ⭐</div>
+            </button>
+            <button class="mystery-box mom-box" id="boxMom" type="button">
+              <div class="box-emoji">💛</div><div class="box-tier-name">Mom Time</div><div class="box-cost"><span id="momCostText">25</span> ⭐</div>
+            </button>
+            <button class="mystery-box dad-box" id="boxDad" type="button">
+              <div class="box-emoji">🎮</div><div class="box-tier-name">Dad Time</div><div class="box-cost"><span id="dadCostText">25</span> ⭐</div>
+            </button>
+          </div>
+          <div class="box-result" id="boxResult"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>🏅 Won Rewards</h2><button id="approveAll" class="btn btn-small btn-ghost" type="button">Approve All</button></div>
+          <div id="wonRewardsList" class="list-container"></div>
+        </div>
+        <div class="card">
+          <h2>💡 How Eli Earns Points</h2>
+          <div class="points-explainer">
+            <div class="pe-row"><span class="pe-icon">📖</span><span><strong>1 pt</strong> per page</span></div>
+            <div class="pe-row"><span class="pe-icon">🧠</span><span><strong>20 pts</strong> per passed AR test</span></div>
+            <div class="pe-row"><span class="pe-icon">🔥</span><span><strong>5 pts</strong> streak bonus</span></div>
+            <div class="pe-row"><span class="pe-icon">🎯</span><span><strong>10 pts</strong> daily target hit</span></div>
           </div>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <h2>Test History</h2>
-          <button id="clearAR" class="btn btn-ghost" type="button">Clear</button>
+        <div class="card">
+          <h2>💾 Backup</h2>
+          <div class="backup-row">
+            <button id="exportBtn" class="btn btn-ghost" type="button">Export ⬇️</button>
+            <label class="btn btn-ghost filebtn">Import ⬆️<input id="importInput" type="file" accept="application/json" /></label>
+          </div>
+          <textarea id="exportArea" class="export-area" placeholder="Export data..." readonly></textarea>
         </div>
-        <div id="arList" class="list"></div>
-        <div class="hint">This app does NOT include AR questions/answers — it only tracks your results.</div>
-      </div>
-    </section>
+      </section>
+    </main>
+  </div>
 
-    <!-- REWARDS -->
-    <section id="tab-rewards" class="panel">
-      <div class="card">
-        <div class="card-title">
-          <h2>Rewards HQ</h2>
-          <span class="pill">Mystery Box costs <span id="boxCostText">25</span> ⭐</span>
-        </div>
-
-        <div class="reward-row">
-          <button id="openBox" class="btn btn-primary" type="button">Open Mystery Box 🎁</button>
-          <button id="approveAll" class="btn btn-ghost" type="button">Mark Pending as Approved</button>
-        </div>
-
-        <div id="rewardResult" class="reward-result" aria-live="polite"></div>
-        <div class="hint">Parent approves rewards. Points come from pages + passed tests + streak.</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <h2>Reward List</h2>
-          <span class="muted">Editable in Parent Mode</span>
-        </div>
-        <div id="rewardList" class="list"></div>
-      </div>
-
-      <div class="card">
-        <h2>Quick Motivation</h2>
-        <ul class="bullets">
-          <li>One sprint = one step closer to the trip.</li>
-          <li>Try: 10 minutes read, 1 minute tell-back, 1 minute stretch.</li>
-          <li>Collect badges at 12 / 24 / 36 pages!</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- BACKUP -->
-    <section id="tab-backup" class="panel">
-      <div class="card">
-        <h2>Backup / Transfer</h2>
-        <div class="backup-grid">
-          <button id="exportBtn" class="btn btn-primary" type="button">Export Data ⬇️</button>
-          <label class="btn btn-ghost filebtn">
-            Import Data ⬆️
-            <input id="importInput" type="file" accept="application/json" />
-          </label>
-        </div>
-        <textarea id="exportArea" class="textarea" placeholder="Export will appear here..." readonly></textarea>
-        <div class="hint">Use Export/Import if you want to move progress from your phone to his iPad.</div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Parent Modal -->
+  <!-- PARENT DIALOG -->
   <dialog id="parentDialog" class="dialog">
-    <form method="dialog" class="dialog-card" id="parentDialogForm">
-      <div class="dialog-title">
-        <h2>Parent Mode</h2>
-        <button class="btn btn-ghost" value="close" type="submit">✕</button>
-      </div>
-
+    <div class="dialog-inner">
+      <div class="dialog-head"><h2>⚙️ Parent Settings</h2><button class="btn btn-icon" id="closeDialog" type="button">✕</button></div>
       <div id="pinStep">
-        <label>
-          Enter PIN
-          <input type="password" id="pinInput" inputmode="numeric" maxlength="8" placeholder="Default: 1234" />
-        </label>
-        <button id="unlockBtn" class="btn btn-primary" type="button">Unlock 🔒</button>
-        <div class="hint">Default PIN: 1234 (change it below after unlocking).</div>
+        <label class="field"><span class="field-label">Enter PIN</span><input type="password" id="pinInput" inputmode="numeric" maxlength="8" placeholder="1234" /></label>
+        <button id="unlockBtn" class="btn btn-primary" type="button" style="margin-top:10px;width:100%;">Unlock 🔒</button>
+        <p class="hint">Default PIN: 1234</p>
       </div>
-
       <div id="settingsStep" class="hidden">
-        <div class="grid2">
-          <label>
-            Pages goal
-            <input type="number" id="setGoal" min="1" max="500" />
-          </label>
-          <label>
-            Deadline
-            <input type="date" id="setDeadline" />
-          </label>
-          <label>
-            AR pass threshold (%)
-            <input type="number" id="setPass" min="0" max="100" />
-          </label>
-          <label>
-            Mystery Box cost (points)
-            <input type="number" id="setBoxCost" min="1" max="500" />
-          </label>
-          <label>
-            Change PIN
-            <input type="password" id="setPin" inputmode="numeric" maxlength="8" />
-          </label>
+        <div class="settings-section"><h3>📖 Reading</h3>
+          <div class="settings-grid">
+            <label class="field"><span class="field-label">Daily page target</span><input type="number" id="setDailyTarget" min="1" max="500" /></label>
+            <label class="field"><span class="field-label">Deadline</span><input type="date" id="setDeadline" /></label>
+            <label class="field"><span class="field-label">Total pages (0=auto)</span><input type="number" id="setTotalGoal" min="0" max="99999" /></label>
+          </div>
+          <p class="hint">0 = auto-calc from daily × days left</p>
         </div>
-
-        <div class="card soft">
-          <h3>Rewards (one per line)</h3>
-          <textarea id="setRewards" class="textarea" rows="7"></textarea>
+        <div class="settings-section"><h3>🧠 AR Tests</h3>
+          <div class="settings-grid">
+            <label class="field"><span class="field-label">Pass threshold %</span><input type="number" id="setPassThreshold" min="0" max="100" /></label>
+            <label class="field"><span class="field-label">Required # passed (0=TBD)</span><input type="number" id="setARRequired" min="0" max="100" /></label>
+          </div>
         </div>
-
-        <div class="reward-row">
-          <button id="saveSettings" class="btn btn-primary" type="button">Save ✅</button>
-          <button id="lockBtn" class="btn btn-ghost" type="button">Lock Parent Mode</button>
+        <div class="settings-section"><h3>🍬 Treat Box</h3>
+          <label class="field"><span class="field-label">Cost</span><input type="number" id="setTreatsCost" min="1" max="999" /></label>
+          <label class="field"><span class="field-label">Treats (one per line)</span><textarea id="setTreatsRewards" class="rewards-textarea" rows="5"></textarea></label>
+        </div>
+        <div class="settings-section"><h3>💛 Mom Time Box</h3>
+          <label class="field"><span class="field-label">Cost</span><input type="number" id="setMomCost" min="1" max="999" /></label>
+          <label class="field"><span class="field-label">Mom rewards (one per line)</span><textarea id="setMomRewards" class="rewards-textarea" rows="4"></textarea></label>
+        </div>
+        <div class="settings-section"><h3>🎮 Dad Time Box</h3>
+          <label class="field"><span class="field-label">Cost</span><input type="number" id="setDadCost" min="1" max="999" /></label>
+          <label class="field"><span class="field-label">Dad rewards (one per line)</span><textarea id="setDadRewards" class="rewards-textarea" rows="4"></textarea></label>
+        </div>
+        <div class="settings-section"><h3>🔐 PIN</h3>
+          <label class="field"><span class="field-label">New PIN (blank=keep)</span><input type="password" id="setPin" inputmode="numeric" maxlength="8" /></label>
+        </div>
+        <div class="settings-actions">
+          <button id="saveSettings" class="btn btn-primary" type="button" style="flex:1;">Save ✅</button>
+          <button id="lockBtn" class="btn btn-ghost" type="button">Lock</button>
         </div>
       </div>
-    </form>
+    </div>
   </dialog>
-
-  <canvas id="confetti" class="confetti" aria-hidden="true"></canvas>
-
+  <canvas id="confetti" class="confetti-canvas" aria-hidden="true"></canvas>
   <script src="app.js"></script>
 </body>
 </html>
