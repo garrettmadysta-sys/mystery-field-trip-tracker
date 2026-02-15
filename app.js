@@ -12,9 +12,18 @@ const defaultState = {
     mom: ["15 min Mom time (no distractions) 💛","Mom + you pick 3 YouTube videos and watch together 📺","Mom plays a game with you (your choice) 🎲","Mom helps you build something small 🧱","Mom walk + treat 🚶‍♀️🍦"],
     dad: ["15 min Dad time (no distractions) 🎮","VR mission with Dad 🥽","Nintendo boss battle with Dad 👾","CrunchLabs bonus build with Dad 🔧","Coding jam with Dad (Scratch / build step) 💻"]
   },
-  sprints: [], arTests: [], wonRewards: [],
-  points: 0, lastSprintDate: "", streak: 0,
-  milestonesUnlocked: {}, dailyBonuses: {}
+  /* Pre-loaded: Eli read 13 pages on Feb 14 and 6 pages on Feb 15 morning */
+  sprints: [
+    { id: "eli_feb14a", date: "2026-02-14", pages: 13 },
+    { id: "eli_feb15a", date: "2026-02-15", pages: 6 }
+  ],
+  arTests: [],
+  wonRewards: [],
+  points: 19, /* 13 + 6 = 19 points from pages */
+  lastSprintDate: "2026-02-15",
+  streak: 2, /* read yesterday and today = 2 day streak */
+  milestonesUnlocked: {},
+  dailyBonuses: {}
 };
 
 let state;
