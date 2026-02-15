@@ -19,69 +19,143 @@
         <span class="logo-icon">🕵️‍♂️</span>
         <div>
           <h1 class="app-title">Eli's Mystery Field Trip</h1>
-          <p class="app-sub">Read · Pass AR Tests · Go on the Trip!</p>
+          <p class="app-sub">Read · Pass AR Tests · Earn the Trip!</p>
         </div>
       </div>
       <button id="parentBtn" class="btn btn-icon" type="button" title="Parent Mode">⚙️</button>
     </header>
 
+    <!-- DAILY MISSION BANNER -->
     <div class="mission-banner" id="missionBanner">
       <div class="mission-left">
         <div class="mission-label">ELI'S MISSION TODAY</div>
-        <div class="mission-target" id="missionTarget">Read <strong>36 pages</strong> today</div>
+        <div class="mission-target" id="missionTarget">Read <strong>26 pages</strong> today</div>
+        <div class="mission-makeup" id="missionMakeup"></div>
       </div>
       <div class="mission-right">
         <div class="mission-done" id="missionDone">0 done</div>
-        <div class="mission-remaining" id="missionRemaining">36 to go</div>
+        <div class="mission-remaining" id="missionRemaining">26 to go</div>
       </div>
     </div>
 
+    <!-- TABS -->
     <nav class="tabs">
-      <button class="tab is-active" data-tab="progress">📖 Read</button>
-      <button class="tab" data-tab="timer">⏱️ Timer</button>
-      <button class="tab" data-tab="artests">🧠 AR</button>
-      <button class="tab" data-tab="rewards">🎁 Rewards</button>
+      <button class="tab is-active" data-tab="dashboard">🏠</button>
+      <button class="tab" data-tab="progress">📖</button>
+      <button class="tab" data-tab="timer">⏱️</button>
+      <button class="tab" data-tab="artests">🧠</button>
+      <button class="tab" data-tab="rewards">🎁</button>
     </nav>
 
     <main class="main">
 
-      <!-- PROGRESS -->
-      <section id="tab-progress" class="panel is-active">
-        <div class="card">
-          <div class="card-head">
-            <h2>📊 Eli's Progress</h2>
-            <span class="pill" id="deadlinePill">No deadline set</span>
+      <!-- ========== DASHBOARD ========== -->
+      <section id="tab-dashboard" class="panel is-active">
+        <!-- ELI'S HERO CARD -->
+        <div class="card hero-card">
+          <div class="hero-photo-row">
+            <img src="eli-school-web.jpg" alt="Eli at school" class="hero-photo" />
+            <div class="hero-text">
+              <div class="hero-name">Let's go Eli! 🕵️‍♂️</div>
+              <div class="hero-sub">Reading detective on a mission</div>
+              <div class="hero-stats">
+                <span class="hero-stat"><strong id="dashPoints">0</strong> ⭐</span>
+                <span class="hero-stat"><strong id="dashStreak">0</strong> 🔥</span>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- TODAY'S SPECIAL GOAL -->
+        <div class="card today-goal-card" id="todayGoalCard">
+          <div class="today-goal-header">🎯 TODAY'S GOAL — Sunday Feb 15</div>
+          <div class="today-goal-text" id="todayGoalText">Finish all your pages today...</div>
+          <div class="today-goal-reward">
+            <span class="today-reward-emoji">🔧</span>
+            <span>Then <strong>work on the CrunchLabs Box with Dad!</strong></span>
+          </div>
+          <div class="today-goal-progress">
+            <div class="progress-track"><div class="progress-fill" id="todayGoalFill"></div></div>
+            <div class="today-goal-label" id="todayGoalLabel">0 / 0 pages</div>
+          </div>
+        </div>
+
+        <!-- BOOK TRACKER -->
+        <div class="card">
+          <h2>📚 Eli's Book Journey</h2>
+          <p class="hint">Read each book, pass the AR test, earn the Mystery Field Trip!</p>
+          <div class="book-list" id="bookList"></div>
+        </div>
+
+        <!-- GRAND PRIZE -->
+        <div class="card grand-prize-card">
+          <div class="gp-header">🏆 THE GRAND PRIZE</div>
+          <div class="gp-text">Pass ALL your AR tests and complete ALL your books...</div>
+          <div class="gp-prizes">
+            <div class="gp-item">🚌 <strong>Go on the Mystery Field Trip!</strong></div>
+            <div class="gp-item">💻 <strong>Dad shows you how he built this app just for you!</strong></div>
+          </div>
+          <div class="gp-progress">
+            <div class="gp-check" id="gpBooks">📚 Books: <span id="gpBooksStatus">0/4</span></div>
+            <div class="gp-check" id="gpAR">🧠 AR Tests: <span id="gpARStatus">0/4</span></div>
+          </div>
+        </div>
+
+        <!-- SUMMER MOTIVATION -->
+        <div class="card summer-card">
+          <img src="eli-beach-web.jpg" alt="Eli and Connor at the beach" class="summer-photo" />
+          <div class="summer-text">
+            <div class="summer-title">☀️ Summer is Coming!</div>
+            <div class="summer-sub">Eli & Connor at the beach — it's not far away! Keep reading and before you know it, you'll be back in the waves. The Mystery Field Trip is your first big adventure this year! 🌊</div>
+          </div>
+        </div>
+
+        <!-- OVERALL PROGRESS -->
+        <div class="card">
+          <h2>📊 Overall Progress</h2>
           <div class="progress-bar-wrap">
             <div class="progress-labels">
-              <span><strong id="totalPagesRead">0</strong> pages read</span>
-              <span class="muted" id="totalPagesGoalLabel">Goal: —</span>
+              <span><strong id="dashTotalRead">0</strong> pages read</span>
+              <span class="muted" id="dashGoalLabel">Goal: —</span>
             </div>
-            <div class="progress-track"><div class="progress-fill" id="totalProgressFill"></div></div>
+            <div class="progress-track"><div class="progress-fill" id="dashProgressFill"></div></div>
           </div>
           <div class="stat-row">
-            <div class="stat-card"><div class="stat-val" id="pagesPerDay">36</div><div class="stat-label">pages/day</div></div>
-            <div class="stat-card accent"><div class="stat-val" id="streakVal">0 🔥</div><div class="stat-label">streak</div></div>
-            <div class="stat-card gold"><div class="stat-val" id="pointsVal">0 ⭐</div><div class="stat-label">points</div></div>
+            <div class="stat-card"><div class="stat-val" id="dashPerDay">26</div><div class="stat-label">pages/day</div></div>
+            <div class="stat-card accent"><div class="stat-val" id="dashStreakCard">0 🔥</div><div class="stat-label">streak</div></div>
+            <div class="stat-card gold"><div class="stat-val" id="dashPointsCard">0 ⭐</div><div class="stat-label">points</div></div>
           </div>
           <div class="badges-row" id="badgesRow"></div>
         </div>
+      </section>
+
+      <!-- ========== READ TAB ========== -->
+      <section id="tab-progress" class="panel">
         <div class="card">
           <h2>✏️ Log Pages</h2>
           <form id="sprintForm" class="inline-form">
             <label class="field"><span class="field-label">Date</span><input type="date" id="sprintDate" required /></label>
+            <label class="field"><span class="field-label">Book</span>
+              <select id="sprintBook">
+                <option value="Grand Canyon Grab">Grand Canyon Grab</option>
+                <option value="Cracks the Code">Cracks the Code</option>
+                <option value="Case of the Secret Pitch">Case of the Secret Pitch</option>
+                <option value="Super Sleuth">Super Sleuth</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
             <label class="field"><span class="field-label">Pages</span><input type="number" id="sprintPages" min="1" max="999" inputmode="numeric" placeholder="6" required /></label>
             <button class="btn btn-primary" type="submit">Log It ✅</button>
           </form>
           <p class="hint">Eli reads ~6 pages in 10 min. Log after each sprint!</p>
         </div>
         <div class="card">
-          <div class="card-head"><h2>📋 Log</h2><button id="clearSprints" class="btn btn-small btn-ghost" type="button">Clear</button></div>
+          <div class="card-head"><h2>📋 Reading Log</h2><button id="clearSprints" class="btn btn-small btn-ghost" type="button">Clear</button></div>
           <div id="sprintList" class="list-container"></div>
         </div>
       </section>
 
-      <!-- TIMER -->
+      <!-- ========== TIMER ========== -->
       <section id="tab-timer" class="panel">
         <div class="card timer-card">
           <h2>⏱️ Eli's Sprint Timer</h2>
@@ -108,6 +182,15 @@
           <div class="timer-done-section hidden" id="timerDoneSection">
             <div class="timer-done-msg">🎉 Awesome job Eli! How many pages?</div>
             <form id="timerLogForm" class="inline-form">
+              <label class="field"><span class="field-label">Book</span>
+                <select id="timerLogBook">
+                  <option value="Grand Canyon Grab">Grand Canyon Grab</option>
+                  <option value="Cracks the Code">Cracks the Code</option>
+                  <option value="Case of the Secret Pitch">Case of the Secret Pitch</option>
+                  <option value="Super Sleuth">Super Sleuth</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
               <label class="field"><span class="field-label">Pages</span><input type="number" id="timerLogPages" min="1" max="999" inputmode="numeric" placeholder="6" required /></label>
               <button class="btn btn-primary" type="submit">Log Pages ✅</button>
             </form>
@@ -115,21 +198,31 @@
         </div>
       </section>
 
-      <!-- AR TESTS -->
+      <!-- ========== AR TESTS ========== -->
       <section id="tab-artests" class="panel">
         <div class="card">
           <div class="card-head"><h2>🧠 AR Tests</h2><span class="pill">Pass = <span id="passThresholdText">80</span>%+</span></div>
-          <div class="ar-goal-bar hidden" id="arGoalBar">
-            <div class="ar-goal-text">Passed: <strong id="arPassedCount">0</strong> / <strong id="arRequiredCount">—</strong> needed</div>
+          <div class="ar-trip-banner">
+            <span>🚌</span> Pass all 4 AR tests → <strong>Mystery Field Trip!</strong>
+          </div>
+          <div class="ar-goal-bar" id="arGoalBar">
+            <div class="ar-goal-text">Passed: <strong id="arPassedCount">0</strong> / <strong id="arRequiredCount">4</strong> needed for the trip</div>
             <div class="progress-track small"><div class="progress-fill green" id="arProgressFill"></div></div>
           </div>
           <form id="arForm" class="inline-form">
             <label class="field"><span class="field-label">Date</span><input type="date" id="arDate" required /></label>
-            <label class="field"><span class="field-label">Book</span><input type="text" id="arBook" maxlength="80" placeholder="Book title" required /></label>
+            <label class="field"><span class="field-label">Book</span>
+              <select id="arBook">
+                <option value="Grand Canyon Grab">Grand Canyon Grab</option>
+                <option value="Cracks the Code">Cracks the Code</option>
+                <option value="Case of the Secret Pitch">Case of the Secret Pitch</option>
+                <option value="Super Sleuth">Super Sleuth</option>
+              </select>
+            </label>
             <label class="field"><span class="field-label">Score %</span><input type="number" id="arScore" min="0" max="100" inputmode="numeric" placeholder="85" required /></label>
             <button class="btn btn-primary" type="submit">Log Test 📝</button>
           </form>
-          <p class="hint">No AR questions here — just log results after school.</p>
+          <p class="hint">Log results after taking the test at school.</p>
         </div>
         <div class="card">
           <div class="card-head"><h2>📚 History</h2><button id="clearAR" class="btn btn-small btn-ghost" type="button">Clear</button></div>
@@ -141,10 +234,10 @@
         </div>
       </section>
 
-      <!-- REWARDS -->
+      <!-- ========== REWARDS ========== -->
       <section id="tab-rewards" class="panel">
         <div class="card">
-          <div class="card-head"><h2>🎁 Eli's Mystery Boxes</h2><div class="points-badge" id="rewardPointsBadge">0 ⭐</div></div>
+          <div class="card-head"><h2>🎁 Mystery Boxes</h2><div class="points-badge" id="rewardPointsBadge">0 ⭐</div></div>
           <p class="hint">Spend points to open a box and win a reward!</p>
           <div class="box-tiers">
             <button class="mystery-box treats-box" id="boxTreats" type="button">
@@ -200,7 +293,9 @@
             <label class="field"><span class="field-label">Deadline</span><input type="date" id="setDeadline" /></label>
             <label class="field"><span class="field-label">Total pages (0=auto)</span><input type="number" id="setTotalGoal" min="0" max="99999" /></label>
           </div>
-          <p class="hint">0 = auto-calc from daily × days left</p>
+        </div>
+        <div class="settings-section"><h3>📚 Books (one per line)</h3>
+          <label class="field"><span class="field-label">Book list</span><textarea id="setBookList" class="rewards-textarea" rows="4"></textarea></label>
         </div>
         <div class="settings-section"><h3>🧠 AR Tests</h3>
           <div class="settings-grid">

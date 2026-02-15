@@ -1,29 +1,27 @@
-/* Eli's Mystery Field Trip Tracker */
+/* Eli's Mystery Field Trip Tracker v3 */
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
-const STORAGE_KEY = "eli_trip_tracker_v2";
+const STORAGE_KEY = "eli_trip_tracker_v3";
+
+const BOOKS = ["Grand Canyon Grab","Cracks the Code","Case of the Secret Pitch","Super Sleuth"];
 
 const defaultState = {
-  dailyTarget: 36, deadline: "", totalGoal: 0, passThreshold: 80, arRequired: 0,
+  dailyTarget: 26, deadline: "", totalGoal: 0, passThreshold: 80, arRequired: 4,
   pin: "1234",
+  books: BOOKS.slice(),
   boxCosts: { treats: 12, mom: 25, dad: 25 },
   rewards: {
     treats: ["Sucker 🍭","Pick the snack 🍿","Choose the music during reading 🎵","Blanket fort reading 🏕️","Sticker / small prize ⭐","10 min YouTube (approved) 📺","10 min Nintendo 🎮","Dad/Mom tells a funny story 😂","2-minute victory dance break 💃"],
     mom: ["15 min Mom time (no distractions) 💛","Mom + you pick 3 YouTube videos and watch together 📺","Mom plays a game with you (your choice) 🎲","Mom helps you build something small 🧱","Mom walk + treat 🚶‍♀️🍦"],
-    dad: ["15 min Dad time (no distractions) 🎮","VR mission with Dad 🥽","Nintendo boss battle with Dad 👾","CrunchLabs bonus build with Dad 🔧","Coding jam with Dad (Scratch / build step) 💻"]
+    dad: ["15 min Dad time (no distractions) 🎮","VR mission with Dad 🥽","Nintendo boss battle with Dad 👾","CrunchLabs bonus build with Dad 🔧","Coding jam with Dad (Scratch / build step) 💻","Eat lunch with Dad at school 🍽️"]
   },
-  /* Pre-loaded: Eli read 13 pages on Feb 14 and 6 pages on Feb 15 morning */
   sprints: [
-    { id: "eli_feb14a", date: "2026-02-14", pages: 13 },
-    { id: "eli_feb15a", date: "2026-02-15", pages: 6 }
+    { id: "eli_feb14a", date: "2026-02-14", pages: 13, book: "Grand Canyon Grab" },
+    { id: "eli_feb15a", date: "2026-02-15", pages: 6, book: "Grand Canyon Grab" }
   ],
-  arTests: [],
-  wonRewards: [],
-  points: 19, /* 13 + 6 = 19 points from pages */
-  lastSprintDate: "2026-02-15",
-  streak: 2, /* read yesterday and today = 2 day streak */
-  milestonesUnlocked: {},
-  dailyBonuses: {}
+  arTests: [], wonRewards: [],
+  points: 19, lastSprintDate: "2026-02-15", streak: 2,
+  milestonesUnlocked: {}, dailyBonuses: {}
 };
 
 let state;
@@ -38,24 +36,38 @@ function loadState() {
     m.rewards = { treats: p.rewards?.treats || defaultState.rewards.treats, mom: p.rewards?.mom || defaultState.rewards.mom, dad: p.rewards?.dad || defaultState.rewards.dad };
     m.milestonesUnlocked = p.milestonesUnlocked || {};
     m.dailyBonuses = p.dailyBonuses || {};
+    m.books = p.books || BOOKS.slice();
     return m;
   } catch { return structuredClone(defaultState); }
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
 function uid() { return Math.random().toString(36).slice(2,8) + Date.now().toString(36); }
 function todayISO() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
+function yesterdayISO() { const d = new Date(); d.setDate(d.getDate()-1); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
 function daysLeft() { if (!state.deadline) return null; return Math.max(0, Math.ceil((new Date(state.deadline+"T23:59:59") - new Date()) / 86400000)); }
 function esc(s) { const e = document.createElement("span"); e.textContent = String(s); return e.innerHTML; }
 
 function totalRead() { return state.sprints.reduce((s,x) => s + (Number(x.pages)||0), 0); }
 function todayRead() { const t = todayISO(); return state.sprints.filter(s=>s.date===t).reduce((s,x) => s + (Number(x.pages)||0), 0); }
+function dateRead(d) { return state.sprints.filter(s=>s.date===d).reduce((s,x) => s + (Number(x.pages)||0), 0); }
+function bookPages(b) { return state.sprints.filter(s=>s.book===b).reduce((s,x) => s + (Number(x.pages)||0), 0); }
 function effectiveGoal() { if (state.totalGoal > 0) return state.totalGoal; const d = daysLeft(); return (d !== null && d > 0) ? state.dailyTarget * d + totalRead() : 0; }
 function perDay() { const r = Math.max(0, effectiveGoal() - totalRead()); const d = daysLeft(); return (d === null || d <= 0) ? state.dailyTarget : Math.ceil(r / d); }
 function arPassed() { return state.arTests.filter(t=>t.passed).length; }
+function arPassedForBook(b) { return state.arTests.some(t=>t.book===b && t.passed); }
+
+function getMakeup() {
+  const y = yesterdayISO();
+  const yesterdayPages = dateRead(y);
+  if (yesterdayPages < state.dailyTarget) return Math.max(0, state.dailyTarget - yesterdayPages);
+  return 0;
+}
+
+function todayTarget() { return state.dailyTarget + getMakeup(); }
 
 function getMilestones() {
-  const dt = state.dailyTarget || 36;
-  const targets = [dt, dt*3, dt*7];
+  const dt = state.dailyTarget || 26;
+  const targets = [dt, dt*3, dt*7, dt*14];
   const g = effectiveGoal();
   if (g > 0 && !targets.includes(g)) targets.push(g);
   return [...new Set(targets)].sort((a,b)=>a-b).slice(0,5).map(p => ({ pages:p, label: p>=1000 ? (p/1000).toFixed(1)+"k" : String(p), unlocked: !!state.milestonesUnlocked[String(p)] }));
@@ -99,7 +111,7 @@ function launchConfetti() {
     sz:4+Math.random()*6, col:colors[Math.floor(Math.random()*colors.length)],
     rot:Math.random()*Math.PI*2, rs:-0.2+Math.random()*0.4, sh:Math.random()>.5?"r":"c"
   }));
-  const end = performance.now()+2000; confettiOn = true;
+  const end = performance.now()+2200; confettiOn = true;
   function frame(t) {
     if (!confettiOn) return;
     ctx.clearRect(0,0,W,H);
@@ -119,7 +131,7 @@ function launchConfetti() {
 /* === TIMER === */
 let timerInt = null, timerSec = 600, timerTot = 600, timerOn = false, selMin = 10;
 const CIRC = 2 * Math.PI * 90;
-const msgs = ["You're doing amazing, Eli! 🌟","Keep going, detective! 🕵️","Almost there! 💪","You've got this! 🔥","Reading superstar! ⭐","One page at a time! 📖","You're crushing it! 🏆","So close to the trip! 🚌","Mystery awaits! 🗺️","Pages = points = prizes! 🎁"];
+const msgs = ["You're doing amazing, Eli! 🌟","Keep going, detective! 🕵️","Almost there! 💪","You've got this! 🔥","Reading superstar! ⭐","One page at a time! 📖","You're crushing it! 🏆","So close to the trip! 🚌","Mystery awaits! 🗺️","Pages = points = prizes! 🎁","Summer's coming — keep reading! ☀️","CrunchLabs builds need readers! 🔧"];
 
 function updateTimer() {
   const m = Math.floor(timerSec/60), s = timerSec%60;
@@ -164,8 +176,11 @@ function stopTimer(done) {
 
 /* === RENDER === */
 function renderMission() {
-  const done = todayRead(), tgt = state.dailyTarget, rem = Math.max(0,tgt-done);
+  const done = todayRead(), tgt = todayTarget(), base = state.dailyTarget, makeup = getMakeup();
+  const rem = Math.max(0, tgt - done);
   $("#missionTarget").innerHTML = `Read <strong>${tgt} pages</strong> today`;
+  if (makeup > 0) { $("#missionMakeup").textContent = `(${base} daily + ${makeup} makeup from yesterday)`; }
+  else { $("#missionMakeup").textContent = ""; }
   $("#missionDone").textContent = `${done} done`;
   $("#missionRemaining").textContent = rem>0 ? `${rem} to go` : "✅ Target hit!";
   const b = $("#missionBanner");
@@ -173,22 +188,67 @@ function renderMission() {
   else { b.style.borderColor="rgba(94,171,255,.15)"; b.style.background="linear-gradient(135deg,rgba(94,171,255,.12),rgba(74,222,128,.08))"; }
 }
 
-function renderProgress() {
-  const r=totalRead(), g=effectiveGoal();
-  $("#totalPagesRead").textContent = r;
-  if (g>0) { $("#totalPagesGoalLabel").textContent=`Goal: ${g}`; $("#totalProgressFill").style.width=Math.min(100,r/g*100)+"%"; }
-  else { $("#totalPagesGoalLabel").textContent="Goal: set deadline in ⚙️"; $("#totalProgressFill").style.width="0%"; }
-  if (state.deadline) { const d=daysLeft(); $("#deadlinePill").textContent = d!==null ? `${d} day${d!==1?'s':''} left` : state.deadline; }
-  else $("#deadlinePill").textContent = "No deadline set";
-  $("#pagesPerDay").textContent = state.deadline ? perDay() : state.dailyTarget;
-  $("#streakVal").textContent = `${state.streak} 🔥`;
-  $("#pointsVal").textContent = `${state.points} ⭐`;
+function renderDashboard() {
+  /* Hero stats */
+  $("#dashPoints").textContent = state.points;
+  $("#dashStreak").textContent = state.streak;
 
-  const el = $("#badgesRow"); el.innerHTML = "";
+  /* Today's goal card */
+  const done = todayRead(), tgt = todayTarget();
+  const rem = Math.max(0, tgt - done);
+  if (rem > 0) {
+    $("#todayGoalText").textContent = `${rem} more pages to go! You can do it!`;
+  } else {
+    $("#todayGoalText").textContent = "🎉 You did it! Time for CrunchLabs!";
+    $("#todayGoalCard").style.borderColor = "rgba(74,222,128,.3)";
+  }
+  const pct = tgt > 0 ? Math.min(100, done/tgt*100) : 0;
+  $("#todayGoalFill").style.width = pct + "%";
+  $("#todayGoalLabel").textContent = `${done} / ${tgt} pages`;
+
+  /* Book tracker */
+  const el = $("#bookList"); el.innerHTML = "";
+  let booksComplete = 0;
+  state.books.forEach((b, i) => {
+    const pages = bookPages(b);
+    const arDone = arPassedForBook(b);
+    const hasPages = pages > 0;
+    const complete = hasPages && arDone;
+    if (complete) booksComplete++;
+    const d = document.createElement("div");
+    d.className = "book-item" + (complete ? " completed" : "");
+    let badges = "";
+    if (hasPages) badges += `<span class="book-badge read-done">📖 ${pages}pg</span>`;
+    else badges += `<span class="book-badge pending">📖 0pg</span>`;
+    if (arDone) badges += `<span class="book-badge ar-done">🧠 PASS</span>`;
+    else badges += `<span class="book-badge pending">🧠 —</span>`;
+    d.innerHTML = `<div class="book-num">${complete?"✅":(i+1)}</div><div class="book-info"><div class="book-title">${esc(b)}</div><div class="book-meta">${complete?"Complete!":"In progress..."}</div></div><div class="book-badges">${badges}</div>`;
+    el.appendChild(d);
+  });
+
+  /* Grand prize */
+  const arPassedTotal = arPassed();
+  $("#gpBooksStatus").textContent = `${booksComplete}/${state.books.length}`;
+  $("#gpARStatus").textContent = `${arPassedTotal}/${state.arRequired || state.books.length}`;
+  if (booksComplete >= state.books.length && arPassedTotal >= (state.arRequired || state.books.length)) {
+    $(".grand-prize-card").style.borderColor = "rgba(74,222,128,.4)";
+    $(".gp-header").textContent = "🏆🎉 YOU DID IT!!! 🎉🏆";
+  }
+
+  /* Overall progress */
+  const r = totalRead(), g = effectiveGoal();
+  $("#dashTotalRead").textContent = r;
+  if (g>0) { $("#dashGoalLabel").textContent=`Goal: ${g}`; $("#dashProgressFill").style.width=Math.min(100,r/g*100)+"%"; }
+  else { $("#dashGoalLabel").textContent="Goal: set deadline in ⚙️"; $("#dashProgressFill").style.width="0%"; }
+  $("#dashPerDay").textContent = state.deadline ? perDay() : state.dailyTarget;
+  $("#dashStreakCard").textContent = `${state.streak} 🔥`;
+  $("#dashPointsCard").textContent = `${state.points} ⭐`;
+
+  const be = $("#badgesRow"); be.innerHTML = "";
   for (const m of getMilestones()) {
     const d = document.createElement("div"); d.className = "badge-item"+(m.unlocked?" unlocked":"");
     d.innerHTML = `<div class="badge-emoji">${m.unlocked?"🏅":"🔒"}</div><div>${m.label} pg</div>`;
-    el.appendChild(d);
+    be.appendChild(d);
   }
 }
 
@@ -198,18 +258,18 @@ function renderSprints() {
   el.innerHTML="";
   for (const s of items) {
     const d=document.createElement("div"); d.className="list-item";
-    d.innerHTML=`<div class="list-item-info"><div class="list-item-title">${s.pages} pages</div><div class="list-item-meta">${s.date}</div></div><button class="btn btn-small btn-ghost" data-del-sprint="${s.id}">✕</button>`;
+    const bookLabel = s.book ? ` · ${esc(s.book)}` : "";
+    d.innerHTML=`<div class="list-item-info"><div class="list-item-title">${s.pages} pages</div><div class="list-item-meta">${s.date}${bookLabel}</div></div><button class="btn btn-small btn-ghost" data-del-sprint="${s.id}">✕</button>`;
     el.appendChild(d);
   }
 }
 
 function renderAR() {
-  const p=arPassed(), a=state.arTests.length, req=state.arRequired||0;
+  const p=arPassed(), a=state.arTests.length, req=state.arRequired||4;
   $("#passThresholdText").textContent=state.passThreshold;
-  $("#arPassedCount").textContent=p; $("#arRequiredCount").textContent=req>0?req:"—";
+  $("#arPassedCount").textContent=p; $("#arRequiredCount").textContent=req;
   $("#arPassedStat").textContent=`${p} ✅`; $("#arAttemptStat").textContent=`${a} 📚`;
-  if (req>0) { $("#arProgressFill").style.width=Math.min(100,p/req*100)+"%"; $("#arGoalBar").classList.remove("hidden"); }
-  else $("#arGoalBar").classList.add("hidden");
+  $("#arProgressFill").style.width=Math.min(100,p/req*100)+"%";
 
   const el=$("#arList"), items=[...state.arTests].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   if (!items.length) { el.innerHTML='<div class="hint">No AR tests yet. Take one at school! 🧠</div>'; return; }
@@ -217,7 +277,7 @@ function renderAR() {
   for (const t of items) {
     const tc=t.passed?"tag-pass":"tag-fail", tt=t.passed?"PASS":"TRY AGAIN";
     const d=document.createElement("div"); d.className="list-item";
-    d.innerHTML=`<div class="list-item-info"><div class="list-item-title">${esc(t.book)}</div><div class="list-item-meta">${t.date} · ${t.score}%</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${tc}">${tt}</span><button class="btn btn-small btn-ghost" data-del-ar="${t.id}">✕</button></div>`;
+    d.innerHTML=`<div class="list-item-info"><div class="list-item-title">${esc(t.book||"Unknown")}</div><div class="list-item-meta">${t.date} · ${t.score}%</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${tc}">${tt}</span><button class="btn btn-small btn-ghost" data-del-ar="${t.id}">✕</button></div>`;
     el.appendChild(d);
   }
 }
@@ -242,7 +302,7 @@ function renderRewards() {
   }
 }
 
-function renderAll() { renderMission(); renderProgress(); renderSprints(); renderAR(); renderRewards(); }
+function renderAll() { renderMission(); renderDashboard(); renderSprints(); renderAR(); renderRewards(); }
 
 /* === EVENTS === */
 function setupTabs() {
@@ -256,9 +316,9 @@ function setupSprints() {
   $("#sprintDate").value = todayISO();
   $("#sprintForm").addEventListener("submit", e=>{
     e.preventDefault();
-    const d=$("#sprintDate").value||todayISO(), p=Number($("#sprintPages").value);
+    const d=$("#sprintDate").value||todayISO(), p=Number($("#sprintPages").value), book=$("#sprintBook").value;
     if (!Number.isFinite(p)||p<=0) return;
-    state.sprints.push({id:uid(),date:d,pages:p}); state.points+=p;
+    state.sprints.push({id:uid(),date:d,pages:p,book}); state.points+=p;
     updateStreak(d); checkDailyBonus(d); checkMilestones();
     $("#sprintPages").value=""; save();
   });
@@ -283,9 +343,10 @@ function setupTimer() {
   $("#timerStopBtn").addEventListener("click", ()=>stopTimer(false));
   $("#timerLogForm").addEventListener("submit", e=>{
     e.preventDefault();
-    const p=Number($("#timerLogPages").value); if(!Number.isFinite(p)||p<=0) return;
+    const p=Number($("#timerLogPages").value), book=$("#timerLogBook").value;
+    if(!Number.isFinite(p)||p<=0) return;
     const d=todayISO();
-    state.sprints.push({id:uid(),date:d,pages:p}); state.points+=p;
+    state.sprints.push({id:uid(),date:d,pages:p,book}); state.points+=p;
     updateStreak(d); checkDailyBonus(d); checkMilestones();
     $("#timerLogPages").value=""; $("#timerDoneSection").classList.add("hidden");
     $("#timerMessage").textContent="Logged! Another sprint, Eli? 📚";
@@ -298,12 +359,16 @@ function setupAR() {
   $("#arDate").value = todayISO();
   $("#arForm").addEventListener("submit", e=>{
     e.preventDefault();
-    const d=$("#arDate").value||todayISO(), book=$("#arBook").value.trim(), score=Number($("#arScore").value);
+    const d=$("#arDate").value||todayISO(), book=$("#arBook").value, score=Number($("#arScore").value);
     if (!book||!Number.isFinite(score)) return;
     const passed=score>=state.passThreshold;
     state.arTests.push({id:uid(),date:d,book,score,passed});
-    if (passed) { state.points+=20; launchConfetti(); if(state.arRequired>0&&arPassed()>=state.arRequired) setTimeout(launchConfetti,800); }
-    $("#arBook").value=""; $("#arScore").value=""; save();
+    if (passed) {
+      state.points+=20; launchConfetti();
+      const total = arPassed();
+      if (total >= (state.arRequired||4)) setTimeout(()=>{ launchConfetti(); alert("🏆 Eli passed ALL AR tests! MYSTERY FIELD TRIP unlocked! 🚌🎉"); }, 800);
+    }
+    $("#arScore").value=""; save();
   });
   $("#arList").addEventListener("click", e=>{
     const b=e.target.closest("[data-del-ar]"); if(!b) return;
@@ -362,7 +427,8 @@ function setupParent() {
     if($("#pinInput").value.trim()!==String(state.pin||"1234")) { alert("Wrong PIN."); return; }
     $("#setDailyTarget").value=state.dailyTarget; $("#setDeadline").value=state.deadline;
     $("#setTotalGoal").value=state.totalGoal||0; $("#setPassThreshold").value=state.passThreshold;
-    $("#setARRequired").value=state.arRequired||0;
+    $("#setARRequired").value=state.arRequired||4;
+    $("#setBookList").value=state.books.join("\n");
     $("#setTreatsCost").value=state.boxCosts.treats; $("#setMomCost").value=state.boxCosts.mom; $("#setDadCost").value=state.boxCosts.dad;
     $("#setTreatsRewards").value=state.rewards.treats.join("\n"); $("#setMomRewards").value=state.rewards.mom.join("\n"); $("#setDadRewards").value=state.rewards.dad.join("\n");
     $("#setPin").value="";
@@ -375,11 +441,12 @@ function setupParent() {
     const tg=Number($("#setTotalGoal").value); state.totalGoal=(Number.isFinite(tg)&&tg>0)?Math.floor(tg):0;
     const pt=Number($("#setPassThreshold").value); state.passThreshold=Number.isFinite(pt)?Math.max(0,Math.min(100,pt)):80;
     const ar=Number($("#setARRequired").value); state.arRequired=(Number.isFinite(ar)&&ar>0)?Math.floor(ar):0;
+    const pl=v=>v.trim().split("\n").map(s=>s.trim()).filter(Boolean);
+    state.books=pl($("#setBookList").value);
     const tc=Number($("#setTreatsCost").value), mc=Number($("#setMomCost").value), dc=Number($("#setDadCost").value);
     if(Number.isFinite(tc)&&tc>0) state.boxCosts.treats=tc;
     if(Number.isFinite(mc)&&mc>0) state.boxCosts.mom=mc;
     if(Number.isFinite(dc)&&dc>0) state.boxCosts.dad=dc;
-    const pl=v=>v.trim().split("\n").map(s=>s.trim()).filter(Boolean);
     state.rewards.treats=pl($("#setTreatsRewards").value);
     state.rewards.mom=pl($("#setMomRewards").value);
     state.rewards.dad=pl($("#setDadRewards").value);

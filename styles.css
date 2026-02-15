@@ -21,40 +21,97 @@ body::before{content:'';position:fixed;inset:0;background:
   z-index:0;pointer-events:none}
 .app{position:relative;z-index:1}
 
+/* HEADER */
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--card-border);background:rgba(12,18,34,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:20}
 .brand{display:flex;align-items:center;gap:12px}
 .logo-icon{font-size:32px}
 .app-title{font-family:var(--font-display);font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .app-sub{font-size:12px;color:var(--text2);margin-top:1px}
 
+/* MISSION BANNER */
 .mission-banner{display:flex;justify-content:space-between;align-items:center;margin:12px 14px 0;padding:14px 16px;background:linear-gradient(135deg,rgba(94,171,255,.12),rgba(74,222,128,.08));border:1px solid rgba(94,171,255,.15);border-radius:var(--radius);gap:12px}
 .mission-label{font-family:var(--font-display);font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
 .mission-target{font-size:16px;font-weight:700;margin-top:2px}
 .mission-target strong{color:var(--gold)}
+.mission-makeup{font-size:11px;color:var(--red);margin-top:2px;font-weight:600}
 .mission-right{text-align:right}
 .mission-done{font-weight:800;font-size:16px;color:var(--green)}
 .mission-remaining{font-size:12px;color:var(--text2)}
 
+/* TABS */
 .tabs{display:flex;gap:6px;padding:10px 14px;position:sticky;top:62px;z-index:19;background:rgba(12,18,34,.8);backdrop-filter:blur(10px)}
-.tab{flex:1;border:none;padding:10px 6px;border-radius:var(--radius-sm);background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--text2);font-family:var(--font-display);font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.tab{flex:1;border:none;padding:10px 6px;border-radius:var(--radius-sm);background:rgba(255,255,255,.03);border:1px solid transparent;color:var(--text2);font-family:var(--font-display);font-weight:600;font-size:15px;cursor:pointer;transition:all .2s}
 .tab.is-active{background:rgba(94,171,255,.12);border-color:rgba(94,171,255,.2);color:var(--text)}
 
 .main{padding:0 14px 80px;max-width:600px;margin:0 auto}
 .panel{display:none;padding-top:8px}
 .panel.is-active{display:block}
 
+/* CARDS */
 .card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin:12px 0}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 h2{font-family:var(--font-display);font-size:16px;font-weight:700}
 h3{font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:8px}
 .pill{font-size:11px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--card-border);color:var(--text2);white-space:nowrap}
 
+/* HERO CARD */
+.hero-card{background:linear-gradient(135deg,rgba(94,171,255,.08),rgba(167,139,250,.08));border-color:rgba(94,171,255,.15)}
+.hero-photo-row{display:flex;align-items:center;gap:16px}
+.hero-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(94,171,255,.3);box-shadow:0 0 20px rgba(94,171,255,.15)}
+.hero-text{flex:1}
+.hero-name{font-family:var(--font-display);font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.hero-stats{display:flex;gap:14px;margin-top:8px}
+.hero-stat{font-size:16px;font-weight:700}
+
+/* TODAY'S GOAL */
+.today-goal-card{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,113,133,.05));border-color:rgba(251,191,36,.2)}
+.today-goal-header{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--gold);margin-bottom:6px}
+.today-goal-text{font-size:14px;color:var(--text2);margin-bottom:8px}
+.today-goal-reward{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:var(--radius-sm);border:1px dashed rgba(251,191,36,.2);margin-bottom:10px}
+.today-reward-emoji{font-size:24px}
+.today-goal-progress{margin-top:6px}
+.today-goal-label{font-size:12px;color:var(--text2);margin-top:4px;text-align:center}
+
+/* BOOK TRACKER */
+.book-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.book-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,.02);transition:all .3s}
+.book-item.completed{border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.06)}
+.book-num{font-family:var(--font-display);font-weight:700;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--card-border);flex-shrink:0}
+.book-item.completed .book-num{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.3);color:var(--green)}
+.book-info{flex:1;min-width:0}
+.book-title{font-weight:700;font-size:14px}
+.book-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.book-badges{display:flex;gap:6px;flex-shrink:0}
+.book-badge{font-size:11px;padding:4px 8px;border-radius:999px;font-weight:700;border:1px solid var(--card-border)}
+.book-badge.read-done{color:var(--green);border-color:rgba(74,222,128,.3);background:var(--green-glow)}
+.book-badge.ar-done{color:var(--purple);border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.12)}
+.book-badge.pending{color:var(--text2)}
+
+/* GRAND PRIZE */
+.grand-prize-card{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(167,139,250,.08));border-color:rgba(251,191,36,.2)}
+.gp-header{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:8px}
+.gp-text{text-align:center;color:var(--text2);font-size:14px;margin-bottom:12px}
+.gp-prizes{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.gp-item{padding:10px 14px;background:rgba(255,255,255,.04);border-radius:var(--radius-sm);border:1px dashed rgba(251,191,36,.15);font-size:14px;text-align:center}
+.gp-progress{display:flex;gap:12px;justify-content:center;font-size:13px;font-weight:600}
+.gp-check{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--card-border)}
+
+/* SUMMER CARD */
+.summer-card{overflow:hidden;padding:0}
+.summer-photo{width:100%;height:200px;object-fit:cover;object-position:center top}
+.summer-text{padding:16px}
+.summer-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.summer-sub{font-size:14px;color:var(--text2);line-height:1.6}
+
+/* PROGRESS */
 .progress-bar-wrap{margin:8px 0}
 .progress-labels{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:6px}
 .progress-track{height:14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--card-border);overflow:hidden}
 .progress-track.small{height:10px}
 .progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .5s ease}
 .progress-fill.green{background:linear-gradient(90deg,var(--green),#22d3ee)}
+.progress-fill.gold{background:linear-gradient(90deg,var(--gold),#f97316)}
 
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .stat-row.two{grid-template-columns:repeat(2,1fr)}
@@ -70,15 +127,22 @@ h3{font-family:var(--font-display);font-size:14px;font-weight:600;margin-bottom:
 .badge-item .badge-emoji{font-size:22px;margin-bottom:4px}
 .badge-item.unlocked{border:1px solid rgba(74,222,128,.3);background:rgba(74,222,128,.08);color:var(--text)}
 
+/* AR TRIP BANNER */
+.ar-trip-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(94,171,255,.08);border:1px solid rgba(94,171,255,.15);border-radius:var(--radius-sm);font-size:14px;margin-bottom:12px}
+
+/* FORMS */
 .inline-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:90px}
 .field-label{font-size:12px;color:var(--text2);font-weight:600}
 input,textarea,select{background:rgba(255,255,255,.05);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:14px;width:100%}
-input:focus,textarea:focus{outline:none;border-color:rgba(94,171,255,.4);box-shadow:0 0 0 3px rgba(94,171,255,.1)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:rgba(94,171,255,.4);box-shadow:0 0 0 3px rgba(94,171,255,.1)}
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3bf' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select option{background:#1e293b;color:var(--text)}
 textarea{resize:vertical;min-height:80px}
 .hint{color:var(--text2);font-size:12px;margin-top:8px}
 .muted{color:var(--text2)}
 
+/* BUTTONS */
 .btn{border:none;border-radius:var(--radius-sm);padding:10px 16px;font-family:var(--font-display);font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;color:var(--text);white-space:nowrap}
 .btn-primary{background:linear-gradient(135deg,var(--accent),#3b82f6);color:#fff}
 .btn-primary:active{transform:scale(.97)}
@@ -87,6 +151,7 @@ textarea{resize:vertical;min-height:80px}
 .btn-small{font-size:12px;padding:6px 12px}
 .btn-big{padding:14px 24px;font-size:16px;width:100%}
 
+/* TIMER */
 .timer-card{text-align:center}
 .timer-display{margin:20px 0}
 .timer-circle{position:relative;width:180px;height:180px;margin:0 auto}
@@ -102,9 +167,7 @@ textarea{resize:vertical;min-height:80px}
 .timer-done-section{margin-top:16px}
 .timer-done-msg{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--green);margin-bottom:12px}
 
-.ar-goal-bar{margin-bottom:14px}
-.ar-goal-text{font-size:14px;font-weight:600;margin-bottom:6px}
-
+/* REWARDS */
 .box-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
 .mystery-box{background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px 8px;text-align:center;cursor:pointer;transition:all .25s;font-family:var(--font-display);color:var(--text)}
 .mystery-box:active{transform:scale(.95)}
@@ -123,6 +186,7 @@ textarea{resize:vertical;min-height:80px}
 .pe-icon{font-size:20px}
 .points-badge{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--gold);padding:4px 12px;border-radius:999px;background:var(--gold-glow);border:1px solid rgba(251,191,36,.2)}
 
+/* LISTS */
 .list-container{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .list-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,.02)}
 .list-item-info{flex:1;min-width:0}
@@ -134,11 +198,13 @@ textarea{resize:vertical;min-height:80px}
 .tag-pending{border-color:rgba(251,191,36,.3);color:var(--gold);background:var(--gold-glow)}
 .tag-approved{border-color:rgba(74,222,128,.3);color:var(--green);background:var(--green-glow)}
 
+/* BACKUP */
 .backup-row{display:flex;gap:8px;flex-wrap:wrap}
 .filebtn{cursor:pointer}
 .filebtn input{display:none}
 .export-area{width:100%;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px;color:var(--text2);font-size:12px;font-family:monospace;min-height:50px;resize:vertical}
 
+/* DIALOG */
 .dialog{border:none;background:transparent;padding:0;width:min(560px,94vw);max-height:90dvh}
 .dialog::backdrop{background:rgba(0,0,0,.7)}
 .dialog-inner{background:rgba(16,27,50,.98);border:1px solid var(--card-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;max-height:85dvh;overflow-y:auto}
@@ -162,4 +228,7 @@ textarea{resize:vertical;min-height:80px}
   .box-emoji{font-size:28px}
   .inline-form{flex-direction:column}
   .inline-form .btn{width:100%}
+  .hero-photo{width:64px;height:64px}
+  .hero-name{font-size:18px}
+  .summer-photo{height:160px}
 }
