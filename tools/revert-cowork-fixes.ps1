@@ -67,12 +67,39 @@ if (-not $adapter) {
 
 # --- 1. adapter power management ---------------------------------------------
 
-Write-Step '1. Adapter power management'
-$pm = $backup.PowerManagement
-$targetAllow = $pm.AllowComputerToTurnOffDevice
-if ($PSCmdlet.ShouldProcess($adapter.Name, "Set AllowComputerToTurnOffDevice=$targetAllow")) {
-    Set-NetAdapterPowerManagement -Name $adapter.Name -AllowComputerToTurnOffDevice $targetAllow
-    Write-OK "AllowComputerToTurnOffDevice -> $targetAllow"
+Write-Step '1. Adapter power management (Allow computer to turn off this device)'
+# Prefer the raw MSPower_DeviceEnable capture; fall back to the Get-NetAdapterPowerManagement
+# string if an older backup without MspDeviceEnable is used.
+$targetEnable = $null
+if ($backup.PSObject.Properties.Name -contains 'MspDeviceEnable' -and $backup.MspDeviceEnable) {
+    $targetEnable = [bool]$backup.MspDeviceEnable.Enable
+} elseif ($backup.PowerManagement.AllowComputerToTurnOffDevice) {
+    switch ($backup.PowerManagement.AllowComputerToTurnOffDevice) {
+        'Enabled'  { $targetEnable = $true }
+        'Disabled' { $targetEnable = $false }
+    }
+}
+
+if ($null -eq $targetEnable) {
+    Write-Warn 'No power-management state in backup; skipping step 1.'
+} else {
+    try {
+        $pnpId    = (Get-NetAdapter -Name $adapter.Name).PnPDeviceID
+        $wanted   = if ($backup.MspDeviceEnable) { $backup.MspDeviceEnable.InstanceName } else { "$($pnpId)_0" }
+        $candidates = Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable -ErrorAction Stop
+        $target   = $candidates | Where-Object InstanceName -eq $wanted | Select-Object -First 1
+        if (-not $target) {
+            $target = $candidates | Where-Object { $_.InstanceName -like "$($pnpId)*" } | Select-Object -First 1
+        }
+        if (-not $target) {
+            Write-Warn "No MSPower_DeviceEnable instance found for '$pnpId'; skipping."
+        } elseif ($PSCmdlet.ShouldProcess($adapter.Name, "Set MSPower_DeviceEnable.Enable=$targetEnable")) {
+            Set-CimInstance -InputObject $target -Property @{ Enable = $targetEnable } -ErrorAction Stop
+            Write-OK "Allow computer to turn off this device -> $(if ($targetEnable) {'Enabled'} else {'Disabled'})"
+        }
+    } catch {
+        Write-Warn "Power management revert failed: $($_.Exception.Message)"
+    }
 }
 
 # --- 2. advanced properties ---------------------------------------------------

@@ -75,6 +75,25 @@ $backup.PowerManagement = [ordered]@{
     DeviceSleepOnDisconnect      = "$($pm.DeviceSleepOnDisconnect)"
 }
 
+# Locate the MSPower_DeviceEnable CIM instance for this NIC.
+# "Allow the computer to turn off this device" corresponds to .Enable:
+#   Enable = $true  -> Windows may power-manage the device (checkbox CHECKED)
+#   Enable = $false -> Windows may NOT power off the device (checkbox UNCHECKED)
+$pnpId = (Get-NetAdapter -Name $adapter.Name).PnPDeviceID
+$mspInstance = $null
+try {
+    $candidates = Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable -ErrorAction Stop
+    $mspInstance = $candidates | Where-Object { $_.InstanceName -eq "$($pnpId)_0" } | Select-Object -First 1
+    if (-not $mspInstance) {
+        $mspInstance = $candidates | Where-Object { $_.InstanceName -like "$($pnpId)*" } | Select-Object -First 1
+    }
+} catch {
+    Write-Warn "Could not enumerate MSPower_DeviceEnable: $($_.Exception.Message)"
+}
+$backup.MspDeviceEnable = if ($mspInstance) {
+    [ordered]@{ InstanceName = $mspInstance.InstanceName; Enable = [bool]$mspInstance.Enable }
+} else { $null }
+
 $advTargets = @('Energy-Efficient Ethernet','Green Ethernet','Idle Power Saving')
 foreach ($name in $advTargets) {
     $p = Get-NetAdapterAdvancedProperty -Name $adapter.Name -DisplayName $name -ErrorAction SilentlyContinue
@@ -106,10 +125,18 @@ if ($PSCmdlet.ShouldProcess($backupPath, 'Write backup JSON')) {
 
 # --- apply changes ------------------------------------------------------------
 
-Write-Step '1. Adapter power management'
-if ($PSCmdlet.ShouldProcess($adapter.Name, 'Set AllowComputerToTurnOffDevice=Disabled')) {
-    Set-NetAdapterPowerManagement -Name $adapter.Name -AllowComputerToTurnOffDevice Disabled
-    Write-OK 'AllowComputerToTurnOffDevice -> Disabled'
+Write-Step '1. Adapter power management (Allow computer to turn off this device)'
+if (-not $mspInstance) {
+    Write-Warn "No MSPower_DeviceEnable instance for PnPDeviceID '$pnpId'. Skipping."
+} elseif ($mspInstance.Enable -eq $false) {
+    Write-OK 'Already Disabled (MSPower_DeviceEnable.Enable is $false).'
+} elseif ($PSCmdlet.ShouldProcess($adapter.Name, 'Set MSPower_DeviceEnable.Enable=$false')) {
+    try {
+        Set-CimInstance -InputObject $mspInstance -Property @{ Enable = $false } -ErrorAction Stop
+        Write-OK 'Allow computer to turn off this device -> Disabled'
+    } catch {
+        Write-Warn "Failed to set MSPower_DeviceEnable.Enable: $($_.Exception.Message)"
+    }
 }
 
 Write-Step '2. NIC advanced properties (energy savers)'
